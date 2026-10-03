@@ -1,0 +1,36 @@
+name: HTTP multipart validation (fork)
+
+on:
+  push:
+    branches:
+      - codex/ci-http-multipart
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    if: github.repository == 'qorud02/pygments'
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.14"]
+    steps:
+      - name: Checkout PR code
+        uses: actions/checkout@v6
+        with:
+          ref: f4d983c95b5e1d8fa7ff9d25f4b3250b8e2c274f
+          persist-credentials: false
+      - name: Verify tested commit
+        run: test "$(git rev-parse HEAD)" = "f4d983c95b5e1d8fa7ff9d25f4b3250b8e2c274f"
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install tox
+        run: python -m pip install tox
+      - name: Test package
+        run: tox -e py
